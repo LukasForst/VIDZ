@@ -1,0 +1,18 @@
+    try {
+		// Create new coffeemaker object
+		set patient = ##class(App.Data.Patient).%New()
+
+		// Fill new coffeemaker with data from message body
+		$$$ThrowOnError(patient.%JSONImport(body))
+
+		$$$ThrowOnError(patient.%Save())
+
+		$$$ThrowOnError(patient.%JSONExportToString(.patientJSON))
+
+		do ..%SetHeader("Location", %request.Application _ "patient/" _ patient.%Id())
+
+		return patientJSON
+	} catch (ex) {
+		do ..%SetStatusCode("500")
+		return {"errormessage": "Server error"}
+    }

@@ -1,0 +1,22 @@
+    try {
+		if ('##class(App.Data.Patient).%ExistsId(id)) {
+			do ..%SetStatusCode("404")
+			return {"errormessage": "No patient with given ID"}
+		}
+		
+		// Open patient with given ID
+		set patient = ##class(App.Data.Patient).%OpenId(id)
+
+ 		// Refill opened patient with data from message body
+		$$$ThrowOnError(patient.%JSONImport(body))
+	
+		$$$ThrowOnError(patient.%Save())
+	
+		$$$ThrowOnError(patient.%JSONExportToString(.patientJSON))
+
+		return patientJSON
+	
+	} catch (ex) {
+		do ..%SetStatusCode("500")
+		return {"errormessage": "Server error"}
+	}

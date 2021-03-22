@@ -1,0 +1,13 @@
+    try {
+		&sql(DELETE FROM App_Data.Patient WHERE id = :id)
+
+		if (%ROWCOUNT = 0)  {
+			do ..%SetStatusCode("404")
+			return {"errormessage": "No patient with given ID"}
+		}
+        
+        return {}
+	} catch(ex) {
+		do ..%SetStatusCode("500")
+		return {"errormessage": "Server error"}
+	}

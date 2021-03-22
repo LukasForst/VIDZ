@@ -1,0 +1,69 @@
+    // Using a try/except clause to catch server errors and write custom error message
+    try {
+        set patients = []
+
+        set query = "SELECT * FROM App_Data.Patient"
+        set args = 0
+
+        if ($get(mrn) '= "") {
+            set query = query _ " WHERE MRN = ?"
+            set args($increment(args)) = mrn
+        }
+        if ($get(br) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE BirthNumber = ?"
+            } else {
+                set query = query _ " AND BirthNumber = ?"
+            }
+            set args($increment(args)) = br
+        }
+        if ($get(firstName) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE Name_FirstName = ?"
+            } else {
+                set query = query _ " AND Name_FirstName = ?"
+            }
+            set args($increment(args)) = firstName
+        }
+        if ($get(lastName) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE Name_LastName = ?"
+            } else {
+                set query = query _ " AND Name_LastName = ?"
+            }
+            set args($increment(args)) = lastName
+        }
+        
+        // Query patients.
+        set rs = ##class(%SQL.Statement).%ExecDirect(, query, args...)
+        
+        // Compose JSON from queried info
+        while rs.%Next() {
+            do patients.%Push({
+                "%ID":                  (rs.%Get("ID")),
+                "MRN":                  (rs.%Get("MRN")),
+                "BirthNumber":          (rs.%Get("BirthNumber")),
+                "DateOfBirth":          (rs.%Get("DateOfBirth")),
+                "Gender":               (rs.%Get("Gender")),
+                "Customer": {
+                    "Prefix":           (rs.%Get("Name_Prefix")),
+                    "FirstName":        (rs.%Get("Name_FirstName")),
+                    "LastName":         (rs.%Get("Name_LastName")),
+                    "Suffix":           (rs.%Get("Name_Suffix"))
+                },
+                "Address": {
+                    "Street":           (rs.%Get("Address_Street")),
+                    "City":             (rs.%Get("Address_City")),
+                    "PostalCode":       (rs.%Get("Address_PostalCode")),
+                    "Country":          (rs.%Get("Address_Country"))
+                },
+                "Phone":                (rs.%Get("Phone")),
+                "EMail":                (rs.%Get("EMail"))
+            })
+        }
+
+        return patients.%ToJSON()
+    } catch (ex) {
+        do ..%SetStatusCode("500")
+        return {"errormessage": "Server error"}
+    }

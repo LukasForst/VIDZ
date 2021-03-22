@@ -1,0 +1,18 @@
+    try {
+		if ('##class(App.Data.Patient).%ExistsId(id)) {
+			do ..%SetStatusCode("404")
+			return {"errormessage": "No patient with given ID"}
+		}
+		
+		// Open patient with given ID
+		set patient = ##class(App.Data.Patient).%OpenId(id)
+		
+		$$$ThrowOnError(patient.%JSONExportToString(.patientJSON))
+
+		return patientJSON
+		
+	} catch(ex) {
+		// Set error to 500 for categorical server errors
+		do ..%SetStatusCode("500")
+		return {"errormessage": "Server error"}
+	}
