@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2020.3 (Build 221U)" ts="2021-03-31 12:18:11">
+<Class name="App.Data.Address">
+<Description>
+Simple Address embedded object type</Description>
+<Super>%SerialObject,%JSON.Adaptor,%XML.Adaptor</Super>
+<TimeChanged>65834,31158.3836</TimeChanged>
+<TimeCreated>65834,31158.3836</TimeCreated>
+
+<Property name="Street">
+<Type>%String</Type>
+</Property>
+
+<Property name="City">
+<Type>%String</Type>
+</Property>
+
+<Property name="PostalCode">
+<Type>%String</Type>
+</Property>
+
+<Property name="Country">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Serial</Type>
+<State>AddressState</State>
+<StreamLocation>^App.Data.AddressS</StreamLocation>
+<Data name="AddressState">
+<Value name="1">
+<Value>Street</Value>
+</Value>
+<Value name="2">
+<Value>City</Value>
+</Value>
+<Value name="3">
+<Value>PostalCode</Value>
+</Value>
+<Value name="4">
+<Value>Country</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="App.Data.Name">
+<Description>
+Simple Human Name embedded object type</Description>
+<Super>%SerialObject,%JSON.Adaptor,%XML.Adaptor</Super>
+<TimeChanged>65834,31158.086021</TimeChanged>
+<TimeCreated>65834,31158.086021</TimeCreated>
+
+<Property name="Prefix">
+<Type>%String</Type>
+</Property>
+
+<Property name="FirstName">
+<Type>%String</Type>
+</Property>
+
+<Property name="LastName">
+<Type>%String</Type>
+</Property>
+
+<Property name="Suffix">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Serial</Type>
+<State>NameState</State>
+<StreamLocation>^App.Data.NameS</StreamLocation>
+<Data name="NameState">
+<Value name="1">
+<Value>Prefix</Value>
+</Value>
+<Value name="2">
+<Value>FirstName</Value>
+</Value>
+<Value name="3">
+<Value>LastName</Value>
+</Value>
+<Value name="4">
+<Value>Suffix</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="App.Data.Patient">
+<Description>
+Simple Patient representation</Description>
+<Super>%Persistent,%JSON.Adaptor,%XML.Adaptor</Super>
+<TimeChanged>65834,35948.715588</TimeChanged>
+<TimeCreated>65834,31158.41215</TimeCreated>
+
+<Property name="MRN">
+<Type>%String</Type>
+</Property>
+
+<Property name="BirthNumber">
+<Type>%String</Type>
+</Property>
+
+<Property name="DateOfBirth">
+<Type>%String</Type>
+</Property>
+
+<Property name="Gender">
+<Type>%String</Type>
+<Parameter name="DISPLAYLIST" value=",Male,Female,Other,Unknown"/>
+<Parameter name="VALUELIST" value=",M,F,O,U"/>
+</Property>
+
+<Property name="Name">
+<Type>App.Data.Name</Type>
+</Property>
+
+<Property name="Address">
+<Type>App.Data.Address</Type>
+</Property>
+
+<Property name="Phone">
+<Type>%String</Type>
+</Property>
+
+<Property name="EMail">
+<Type>%String</Type>
+</Property>
+
+<Index name="MRNIndex">
+<Properties>MRN</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Index name="BirthNumberIndex">
+<Properties>BirthNumber</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Index name="FirstNameIndex">
+<Properties>Name.FirstName</Properties>
+</Index>
+
+<Index name="LastNameIndex">
+<Properties>Name.LastName</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^App.Data.PatientD</DataLocation>
+<DefaultData>PatientDefaultData</DefaultData>
+<IdLocation>^App.Data.PatientD</IdLocation>
+<IndexLocation>^App.Data.PatientI</IndexLocation>
+<StreamLocation>^App.Data.PatientS</StreamLocation>
+<Data name="PatientDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>MRN</Value>
+</Value>
+<Value name="3">
+<Value>BirthNumber</Value>
+</Value>
+<Value name="4">
+<Value>DateOfBirth</Value>
+</Value>
+<Value name="5">
+<Value>Gender</Value>
+</Value>
+<Value name="6">
+<Value>Name</Value>
+</Value>
+<Value name="7">
+<Value>Address</Value>
+</Value>
+<Value name="8">
+<Value>Phone</Value>
+</Value>
+<Value name="9">
+<Value>EMail</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="App.SOAP.Service">
+<Description>
+App.SOAP.Service</Description>
+<Language>objectscript</Language>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%SOAP.WebService</Super>
+<TimeChanged>65834,44070.703878</TimeChanged>
+<TimeCreated>65834,31150.025898</TimeCreated>
+
+<Parameter name="SERVICENAME">
+<Description>
+Name of the WebService.</Description>
+<Default>Exercise07</Default>
+</Parameter>
+
+<Parameter name="NAMESPACE">
+<Description>
+SOAP Namespace for the WebService</Description>
+<Default>http://www.fbmi.cvut.cz/fbmi-17120</Default>
+</Parameter>
+
+<Parameter name="USECLASSNAMESPACES">
+<Description>
+Namespaces of referenced classes will be used in the WSDL.</Description>
+<Default>1</Default>
+</Parameter>
+
+<Method name="QueryPatients">
+<Description>
+QueryPatients</Description>
+<FormalSpec>mrn:%String,br:%String,firstName:%String,lastName:%String</FormalSpec>
+<ReturnType>%ListOfDataTypes</ReturnType>
+<WebMethod>1</WebMethod>
+<Implementation><![CDATA[
+	// Using a try/except clause to catch server errors and write custom error message
+	try {
+        #dim response as %ListOfDataTypes = ##class(%ListOfDataTypes).%New()
+
+        set query = "SELECT ID FROM App_Data.Patient"
+        set args = 0
+
+        if ($get(mrn) '= "") {
+            set query = query _ " WHERE MRN = ?"
+            set args($increment(args)) = mrn
+        }
+        if ($get(br) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE BirthNumber = ?"
+            } else {
+                set query = query _ " AND BirthNumber = ?"
+            }
+            set args($increment(args)) = br
+        }
+        if ($get(firstName) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE Name_FirstName = ?"
+            } else {
+                set query = query _ " AND Name_FirstName = ?"
+            }
+            set args($increment(args)) = firstName
+        }
+        if ($get(lastName) '= "") {
+            if (args = 0) {
+                set query = query _ " WHERE Name_LastName = ?"
+            } else {
+                set query = query _ " AND Name_LastName = ?"
+            }
+            set args($increment(args)) = lastName
+        }
+		
+		// Query patients
+		set rs = ##class(%SQL.Statement).%ExecDirect(, query, args...)
+		
+		// Compose result from queried info
+		while rs.%Next() {
+            $$$ThrowOnError(response.Insert(rs.ID))
+		}
+
+		return response
+	} catch (ex) {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="CreatePatient">
+<Description>
+CreatePatient</Description>
+<FormalSpec>patient:App.Data.Patient</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<WebMethod>1</WebMethod>
+<Implementation><![CDATA[
+	try {
+		$$$ThrowOnError(patient.%Save())
+
+		return patient.%Id()
+	} catch (ex) {
+		return ""
+    }
+]]></Implementation>
+</Method>
+
+<Method name="RetrievePatient">
+<Description>
+RetrievePatient</Description>
+<FormalSpec>id:%Integer</FormalSpec>
+<ReturnType>App.Data.Patient</ReturnType>
+<WebMethod>1</WebMethod>
+<Implementation><![CDATA[
+	try {
+		if ('##class(App.Data.Patient).%ExistsId(id)) {
+			return ""
+		}
+		
+		// Return patient with given ID
+		return ##class(App.Data.Patient).%OpenId(id)
+	} catch(ex) {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="UpdatePatient">
+<Description>
+UpdatePatient</Description>
+<FormalSpec>id:%Integer,patient:App.Data.Patient</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<WebMethod>1</WebMethod>
+<Implementation><![CDATA[
+	try {
+		if ('##class(App.Data.Patient).%ExistsId(id)) {
+			return 0
+		}
+		
+		// Open patient with given ID
+		set updatedPatient = ##class(App.Data.Patient).%OpenId(id)
+
+        set:(patient.MRN '= "") updatedPatient.MRN = patient.MRN
+        set:(patient.BirthNumber '= "") updatedPatient.BirthNumber = patient.BirthNumber
+        set:(patient.DateOfBirth '= "") updatedPatient.DateOfBirth = patient.DateOfBirth
+        set:(patient.Gender '= "") updatedPatient.Gender = patient.Gender
+        set:(patient.Name.Prefix '= "") updatedPatient.Name.Prefix  = patient.Name.Prefix 
+        set:(patient.Name.FirstName '= "") updatedPatient.Name.FirstName = patient.Name.FirstName
+        set:(patient.Name.LastName '= "") updatedPatient.Name.LastName = patient.Name.LastName
+        set:(patient.Name.Suffix '= "") updatedPatient.Name.Suffix = patient.Name.Suffix
+        set:(patient.Address.Street '= "") updatedPatient.Address.Street = patient.Address.Street
+        set:(patient.Address.City '= "") updatedPatient.Address.City = patient.Address.City
+        set:(patient.Address.PostalCode '= "") updatedPatient.Address.PostalCode = patient.Address.PostalCode
+        set:(patient.Address.Country '= "") updatedPatient.Address.Country = patient.Address.Country
+        set:(patient.Phone '= "") updatedPatient.Phone = patient.Phone
+        set:(patient.EMail '= "") updatedPatient.EMail = patient.EMail
+
+		$$$ThrowOnError(updatedPatient.%Save())
+
+		return 1
+	} catch (ex) {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="DeletePatient">
+<Description>
+TODO: uncomment and modify the implementation.
+DeletePatient</Description>
+<FormalSpec>id:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<WebMethod>1</WebMethod>
+<Implementation><![CDATA[
+    /*
+	try {
+		&sql(DELETE FROM App_Data.Patient WHERE id = :id)
+
+		if (%ROWCOUNT = 0)  {
+			do ..%SetStatusCode("404")
+			return {"errormessage": "No patient with given ID"}
+		}
+        
+        return {}
+	} catch(ex) {
+		do ..%SetStatusCode("500")
+		return {"errormessage": "Server error"}
+	}
+    */
+]]></Implementation>
+</Method>
+</Class>
+</Export>
