@@ -1,0 +1,13 @@
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('SUMMARY', '1.3.6.1.4.1.19376.1.2.6.1', 'Summary', 'classCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('34133-9', '2.16.840.1.113883.6.1', 'SUMMARIZATION OF EPISODE NOTE', 'typeCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('394802001', '2.16.840.1.113883.6.96', 'General Medicine', 'practiceSettingCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('OF', '2.16.840.1.113883.5.11', 'Outpatient facility', 'healthcareFacilityTypeCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('N', '2.16.840.1.113883.5.25', 'Normal', 'confidentialityCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('2.16.840.1.113883.10.20.1', '2.16.840.1.113883.3.88', 'HL7 CCD Document', 'formatCode')
+
+INSERT INTO HS_IHE.CodedEntry(Code, CodingScheme, Description, CodeType) VALUES   ('34133-9', '2.16.840.1.113883.6.1', 'SUMMARIZATION OF EPISODE NOTE', 'contentTypeCode')
