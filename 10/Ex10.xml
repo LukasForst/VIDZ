@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2020.3 (Build 221U)" ts="2021-04-21 12:00:43">
+<Class name="Integration.Message.CreatePatientRequest">
+<ProcedureBlock>1</ProcedureBlock>
+<Super>Ens.Request</Super>
+<TimeChanged>65855,26856.396556</TimeChanged>
+<TimeCreated>65855,13840.499997</TimeCreated>
+
+<Parameter name="RESPONSECLASSNAME">
+<Default>Integration.Message.CreatePatientResponse</Default>
+</Parameter>
+
+<Property name="MRN">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="MRN"/>
+</Property>
+
+<Property name="AssigningAuthority">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="AssigningAuthority"/>
+</Property>
+
+<Property name="Patient">
+<Type>Integration.Types.Patient</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DefaultData>CreatePatientRequestDefaultData</DefaultData>
+<Data name="CreatePatientRequestDefaultData">
+<Subscript>"CreatePatientRequest"</Subscript>
+<Value name="1">
+<Value>Patient</Value>
+</Value>
+<Value name="2">
+<Value>MRN</Value>
+</Value>
+<Value name="3">
+<Value>AssigningAuthority</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Message.CreatePatientResponse">
+<ProcedureBlock>1</ProcedureBlock>
+<Super>Ens.Response</Super>
+<TimeChanged>65855,41856.898824</TimeChanged>
+<TimeCreated>65855,15448.900059</TimeCreated>
+
+<Property name="MPIID">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DefaultData>CreatePatientResponseDefaultData</DefaultData>
+<Data name="CreatePatientResponseDefaultData">
+<Subscript>"CreatePatientResponse"</Subscript>
+<Value name="1">
+<Value>MPIID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Message.QueryPatientsRequest">
+<ProcedureBlock>1</ProcedureBlock>
+<Super>Ens.Request</Super>
+<TimeChanged>65855,41857.778913</TimeChanged>
+<TimeCreated>65855,15692.489358</TimeCreated>
+
+<Parameter name="RESPONSECLASSNAME">
+<Default>App.SOAP.Message.QueryPatientsResponse</Default>
+</Parameter>
+
+<Property name="MRN">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="MRN"/>
+</Property>
+
+<Property name="AssigningAuthority">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="AssigningAuthority"/>
+</Property>
+
+<Property name="PatientDemographics">
+<Type>Integration.Types.Patient</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DefaultData>QueryPatientsRequestDefaultData</DefaultData>
+<Data name="QueryPatientsRequestDefaultData">
+<Subscript>"QueryPatientsRequest"</Subscript>
+<Value name="1">
+<Value>MRN</Value>
+</Value>
+<Value name="2">
+<Value>AssigningAuthority</Value>
+</Value>
+<Value name="3">
+<Value>PatientDemographics</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Message.QueryPatientsResponse">
+<ProcedureBlock>1</ProcedureBlock>
+<Super>Ens.Response</Super>
+<TimeChanged>65855,18502.702338</TimeChanged>
+<TimeCreated>65855,15729.411012</TimeCreated>
+
+<Property name="Patients">
+<Type>Integration.Types.Patient</Type>
+<Collection>array</Collection>
+<Parameter name="XMLKEYNAME" value="MPIID"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<Data name="Patients">
+<Attribute>Patients</Attribute>
+<Structure>subnode</Structure>
+<Subscript>"Integration.Message.QueryPatientsResponse.Patients"</Subscript>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Process.Query">
+<Description>
+</Description>
+<Super>Ens.BusinessProcessBPL</Super>
+<TimeChanged>65855,33704.232039</TimeChanged>
+<TimeCreated>65855,17130.253238</TimeCreated>
+
+<XData name="BPL">
+<Description>
+BPL Definition</Description>
+<XMLNamespace>http://www.intersystems.com/bpl</XMLNamespace>
+<Data><![CDATA[
+<process language='objectscript' request='Integration.Message.QueryPatientsRequest' response='Integration.Message.QueryPatientsResponse' height='2000' width='2000' >
+<context>
+<property name='pdqRequest' type='HS.Message.PatientSearchRequest' instantiate='0' />
+<property name='pdqResponse' type='HS.Message.PatientSearchResponse' instantiate='0' />
+</context>
+<sequence xend='200' yend='550' >
+<transform name='Transform to PDQ Input' class='Integration.Transformation.QueryToPDQRequest' source='request' target='context.pdqRequest' xpos='200' ypos='250' >
+<annotation><![CDATA[Transform Query Request to PDQ Request]]]]><![CDATA[></annotation>
+</transform>
+<call name='PDQ Consumer Call' target='HS.IHE.PDQv3.Consumer.Operations' async='0' xpos='200' ypos='350' >
+<annotation><![CDATA[Execute the Patient Demographics Query]]]]><![CDATA[></annotation>
+<request type='HS.Message.PatientSearchRequest' >
+<assign property="callrequest" value="context.pdqRequest" action="set" />
+</request>
+<response type='HS.Message.PatientSearchResponse' >
+<assign property="context.pdqResponse" value="callresponse" action="set" />
+</response>
+</call>
+<transform name='Transform from PDQ Output' class='Integration.Transformation.PDQToQueryResponse' source='context.pdqResponse' target='response' xpos='200' ypos='450' >
+<annotation><![CDATA[Transform PDQ Response to Query Response]]]]><![CDATA[></annotation>
+</transform>
+</sequence>
+</process>
+]]></Data>
+</XData>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Transformation.PDQToQueryResponse">
+<Super>Ens.DataTransformDTL</Super>
+<TimeChanged>65855,42337.940051</TimeChanged>
+<TimeCreated>65855,17176.863806</TimeCreated>
+<DependsOn>HS.Message.PatientSearchResponse,Integration.Message.QueryPatientsResponse</DependsOn>
+
+<Parameter name="IGNOREMISSINGSOURCE">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="REPORTERRORS">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="TREATEMPTYREPEATINGFIELDASNULL">
+<Default>0</Default>
+</Parameter>
+
+<XData name="DTL">
+<XMLNamespace>http://www.intersystems.com/dtl</XMLNamespace>
+<Data><![CDATA[
+<transform sourceClass='HS.Message.PatientSearchResponse' targetClass='Integration.Message.QueryPatientsResponse' create='new' language='objectscript' >
+<foreach property='source.MPIIDList()' key='IterationKey' >
+<assign value='##class(Integration.Types.Patient).%New()' property='target.Patients' action='set' key='source.MPIIDList.GetAt(IterationKey).MPIID' />
+<if condition='source.MPIIDList.(IterationKey).DOB &apos;= ""' >
+<true>
+<assign value='..ConvertDateTime(source.MPIIDList.(IterationKey).DOB_",","%q(3)","%Y-%m-%d")' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).DateOfBirth' action='set' />
+</true>
+</if>
+<assign value='source.MPIIDList.GetAt(IterationKey).Sex' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Gender' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Prefix' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Name.Prefix' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).FirstName' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Name.FirstName' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).LastName' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Name.LastName' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Suffix' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Name.Suffix' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Addresses.(1).StreetLine' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Address.Street' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Addresses.(1).City' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Address.City' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Addresses.(1).PostalCode' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Address.PostalCode' action='set' />
+<assign value='source.MPIIDList.GetAt(IterationKey).Addresses.(1).Country' property='target.Patients.(source.MPIIDList.GetAt(IterationKey).MPIID).Address.Country' action='set' />
+</foreach>
+</transform>
+]]></Data>
+</XData>
+</Class>
+
+
+<Class name="Integration.Transformation.QueryToPDQRequest">
+<Super>Ens.DataTransformDTL</Super>
+<TimeChanged>65855,42094.587881</TimeChanged>
+<TimeCreated>65855,16755.798019</TimeCreated>
+<DependsOn>Integration.Message.QueryPatientsRequest,HS.Message.PatientSearchRequest</DependsOn>
+
+<Parameter name="IGNOREMISSINGSOURCE">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="REPORTERRORS">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="TREATEMPTYREPEATINGFIELDASNULL">
+<Default>0</Default>
+</Parameter>
+
+<XData name="DTL">
+<XMLNamespace>http://www.intersystems.com/dtl</XMLNamespace>
+<Data><![CDATA[
+<transform sourceClass='Integration.Message.QueryPatientsRequest' targetClass='HS.Message.PatientSearchRequest' create='new' language='objectscript' >
+<assign value='source.MRN' property='target.MRN' action='set' />
+<assign value='source.AssigningAuthority' property='target.AssigningAuthority' action='set' />
+<assign value='..Piece(..ConvertDateTime(source.PatientDemographics.DateOfBirth,"%Y-%m-%d","%q(3)"))' property='target.DOB' action='set' />
+<assign value='source.PatientDemographics.Gender' property='target.Sex' action='set' />
+<assign value='source.PatientDemographics.Name.Prefix' property='target.Prefix' action='set' />
+<assign value='source.PatientDemographics.Name.FirstName' property='target.FirstName' action='set' />
+<assign value='source.PatientDemographics.Name.LastName' property='target.LastName' action='set' />
+<assign value='source.PatientDemographics.Name.Suffix' property='target.Suffix' action='set' />
+<assign value='source.PatientDemographics.Address.Street' property='target.Street' action='set' />
+<assign value='source.PatientDemographics.Address.City' property='target.City' action='set' />
+<assign value='source.PatientDemographics.Address.PostalCode' property='target.Zip' action='set' />
+</transform>
+]]></Data>
+</XData>
+</Class>
+
+
+<Class name="Integration.Types.Address">
+<Description>
+Created from: http://52773-1-4bfc8c7c.labs.learning.intersystems.com/csp/user/App.SOAP.Service.cls?WSDL</Description>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%SerialObject,%XML.Adaptor</Super>
+<TimeChanged>65855,26387.389542</TimeChanged>
+<TimeCreated>65855,13745.28227</TimeCreated>
+
+<Parameter name="NAMESPACE">
+<Default>http://www.fbmi.cvut.cz/fbmi-17120</Default>
+</Parameter>
+
+<Parameter name="XMLNAME">
+<Default>Address</Default>
+</Parameter>
+
+<Parameter name="XMLSEQUENCE">
+<Default>1</Default>
+</Parameter>
+
+<Property name="Street">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="Street"/>
+</Property>
+
+<Property name="City">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="City"/>
+</Property>
+
+<Property name="PostalCode">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="PostalCode"/>
+</Property>
+
+<Property name="Country">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="Country"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Serial</Type>
+<State>AddressState</State>
+<StreamLocation>^Integration.Types.AddressS</StreamLocation>
+<Data name="AddressState">
+<Value name="1">
+<Value>Street</Value>
+</Value>
+<Value name="2">
+<Value>City</Value>
+</Value>
+<Value name="3">
+<Value>PostalCode</Value>
+</Value>
+<Value name="4">
+<Value>Country</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Types.Name">
+<Description>
+Created from: http://52773-1-4bfc8c7c.labs.learning.intersystems.com/csp/user/App.SOAP.Service.cls?WSDL</Description>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%SerialObject,%XML.Adaptor</Super>
+<TimeChanged>65855,26395.410166</TimeChanged>
+<TimeCreated>65855,13760.220042</TimeCreated>
+
+<Parameter name="NAMESPACE">
+<Default>http://www.fbmi.cvut.cz/fbmi-17120</Default>
+</Parameter>
+
+<Parameter name="XMLNAME">
+<Default>Name</Default>
+</Parameter>
+
+<Parameter name="XMLSEQUENCE">
+<Default>1</Default>
+</Parameter>
+
+<Property name="Prefix">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="Prefix"/>
+</Property>
+
+<Property name="FirstName">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="FirstName"/>
+</Property>
+
+<Property name="LastName">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="LastName"/>
+</Property>
+
+<Property name="Suffix">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="Suffix"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Serial</Type>
+<State>NameState</State>
+<StreamLocation>^Integration.Types.NameS</StreamLocation>
+<Data name="NameState">
+<Value name="1">
+<Value>Prefix</Value>
+</Value>
+<Value name="2">
+<Value>FirstName</Value>
+</Value>
+<Value name="3">
+<Value>LastName</Value>
+</Value>
+<Value name="4">
+<Value>Suffix</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Integration.Types.Patient">
+<Description>
+Created from: http://52773-1-4bfc8c7c.labs.learning.intersystems.com/csp/user/App.SOAP.Service.cls?WSDL</Description>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%SerialObject,%XML.Adaptor</Super>
+<TimeChanged>65855,41841.184866</TimeChanged>
+<TimeCreated>65855,13781.899943</TimeCreated>
+
+<Parameter name="NAMESPACE">
+<Default>http://www.fbmi.cvut.cz/fbmi-17120</Default>
+</Parameter>
+
+<Parameter name="XMLNAME">
+<Default>Patient</Default>
+</Parameter>
+
+<Parameter name="XMLSEQUENCE">
+<Default>1</Default>
+</Parameter>
+
+<Property name="DateOfBirth">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="XMLNAME" value="DateOfBirth"/>
+</Property>
+
+<Property name="Gender">
+<Type>%String</Type>
+<Parameter name="MAXLEN"/>
+<Parameter name="VALUELIST" value=",M,F,O,U"/>
+<Parameter name="XMLNAME" value="Gender"/>
+</Property>
+
+<Property name="Name">
+<Type>Integration.Types.Name</Type>
+<Parameter name="XMLNAME" value="Name"/>
+</Property>
+
+<Property name="Address">
+<Type>Integration.Types.Address</Type>
+<Parameter name="XMLNAME" value="Address"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Serial</Type>
+<State>PatientState</State>
+<StreamLocation>^Integration.Types.PatientS</StreamLocation>
+<Data name="PatientState">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>DateOfBirth</Value>
+</Value>
+<Value name="2">
+<Value>Gender</Value>
+</Value>
+<Value name="3">
+<Value>Name</Value>
+</Value>
+<Value name="4">
+<Value>Address</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>
